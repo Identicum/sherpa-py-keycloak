@@ -1,0 +1,10 @@
+services:
+  keycloak:
+    image: ghcr.io/identicum/keycloak:24.0.5
+    restart: always
+    environment:
+      KEYCLOAK_ADMIN: admin
+      KEYCLOAK_ADMIN_PASSWORD: admin
+    ports:
+      - 8080:8080
+    command: start-dev
