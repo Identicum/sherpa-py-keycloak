@@ -1,0 +1,7 @@
+{
+	"clientId": "test_client_creds",
+	"secret": "client_creds_secret",
+	"standardFlowEnabled": false,
+	"serviceAccountsEnabled": true,
+	"defaultClientScopes": [ "roles" ]
+}

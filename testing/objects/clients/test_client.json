@@ -1,6 +1,8 @@
 {
 	"clientId": "test_client_id",
 	"secret": "test_client_secret",
+	"standardFlowEnabled": true,
+	"serviceAccountsEnabled": false,
 	"redirectUris": [ "https://test.acme.com/oauth/callback" ],
 	"defaultClientScopes": [ "profile", "email" ]
 }

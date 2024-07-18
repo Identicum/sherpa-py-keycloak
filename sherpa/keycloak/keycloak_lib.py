@@ -423,3 +423,11 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		self.logger.debug("role: {}", role)
 	# 		self.assign_client_role(client_id=realm_management_client_id, user_id=user_id, roles=role)
 
+	def sherpa_assign_realm_role_to_client(self, client, role_name):
+		client_id = self.get_client_id(client)
+		self.logger.debug("client_id: {}", client_id)
+		user_id = self.get_client_service_account_user(client_id)["id"]
+		self.logger.debug("user_id: {}", user_id)
+		role = self.get_realm_role(role_name)
+		self.logger.debug("role_id: {}", role)
+		self.assign_realm_roles(user_id=user_id, roles=[role])
