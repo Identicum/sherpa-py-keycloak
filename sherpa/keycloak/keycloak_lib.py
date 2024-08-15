@@ -11,10 +11,9 @@ import shutil
 from keycloak import KeycloakAdmin
 from keycloak.urls_patterns import URL_ADMIN_REALM
 from keycloak.exceptions import (
-    KeycloakOperationError,
     KeycloakGetError,
-    raise_error_from_response,
     KeycloakPutError,
+    raise_error_from_response
 )
 
 URL_ADMIN_REALM_USERPROFILE = URL_ADMIN_REALM + "/users/profile"
@@ -29,7 +28,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# Added methods
 
 	def get_realm_userprofile(self):
-		"""Get a specific realm user profile.
+		"""Get the realm's UserProfile config.
 
 		UPConfig:
 		https://www.keycloak.org/docs-api/25.0.2/rest-api/index.html#UPConfig
@@ -42,7 +41,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[200])
 
 	def update_realm_userprofile(self, payload):
-			"""Update the user.
+			"""Update the realm's UserProfile config.
 
 			:param payload: UPConfig
 			:type payload: dict
@@ -69,10 +68,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		else:
 			userprofile["unmanagedAttributePolicy"] = unmanaged_attributes_policy
 		self.update_realm_userprofile(userprofile)
-  
 
-  
-  
 
 	# ######################################################
 	# Sherpa methods
