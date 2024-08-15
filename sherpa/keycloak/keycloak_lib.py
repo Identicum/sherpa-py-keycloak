@@ -9,6 +9,14 @@ import json
 import os
 import shutil
 from keycloak import KeycloakAdmin
+from keycloak.urls_patterns import URL_ADMIN_REALM
+from keycloak.exceptions import (
+    KeycloakGetError,
+    KeycloakPutError,
+    raise_error_from_response
+)
+
+URL_ADMIN_REALM_USERPROFILE = URL_ADMIN_REALM + "/users/profile"
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
 	def __init__(self, logger, local_properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
@@ -17,12 +25,53 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		self.local_properties = local_properties
 
 	# ######################################################
-	# Override methods
+	# Added methods
 
+	def get_realm_userprofile(self):
+		"""Get the realm's UserProfile config.
+
+		UPConfig:
+		https://www.keycloak.org/docs-api/25.0.2/rest-api/index.html#UPConfig
+
+		:return: UPConfig
+		:rtype: dict
+		"""
+		params_path = {"realm-name": self.connection.realm_name}
+		data_raw = self.connection.raw_get(URL_ADMIN_REALM_USERPROFILE.format(**params_path))
+		return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[200])
+
+	def update_realm_userprofile(self, payload):
+			"""Update the realm's UserProfile config.
+
+			:param payload: UPConfig
+			:type payload: dict
+
+			:return: Http response
+			:rtype: bytes
+			"""
+			params_path = {"realm-name": self.connection.realm_name, "payload": payload}
+			data_raw = self.connection.raw_put(
+				URL_ADMIN_REALM_USERPROFILE.format(**params_path), data=json.dumps(payload)
+			)
+			return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
+
+	def update_realm_unmanagedAttributes(self,  unmanaged_attributes_policy):
+		"""Set the unmanaged attributes policy for a realm.
+
+		:param unmanaged_attributes_policy: Unmanaged attributes policy
+		:type unmanaged_attributes_policy: str
+		"""
+		userprofile = self.get_realm_userprofile()
+		if unmanaged_attributes_policy == "DISABLED":
+			#  delete node
+			userprofile.pop("unmanagedAttributePolicy", None)
+		else:
+			userprofile["unmanagedAttributePolicy"] = unmanaged_attributes_policy
+		self.update_realm_userprofile(userprofile)
 
 
 	# ######################################################
-	# Added methods
+	# Sherpa methods
 
 	def sherpa_client_exists(self, client_id):
 		clients = self.get_clients()
