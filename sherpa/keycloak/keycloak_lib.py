@@ -83,12 +83,12 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		return False
 
 
-	# def sherpa_get_client_keycloakid(self, client_id):
-	# 	clients = self.get_clients()
-	# 	for client in clients:
-	# 		if client_id == client.get('clientId'):
-	# 			return client["id"]
-	# 	return None
+	def sherpa_get_client_keycloakid(self, client_id):
+		clients = self.get_clients()
+		for client in clients:
+			if client_id == client.get('clientId'):
+				return client["id"]
+		return None
 
 
 	# def sherpa_component_exists(self, component_id, parent, provider_type):
