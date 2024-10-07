@@ -8,6 +8,7 @@
 import json
 import os
 import shutil
+from importlib.metadata import version
 from keycloak import KeycloakAdmin
 from keycloak.urls_patterns import URL_ADMIN_REALM
 from keycloak.exceptions import (
@@ -23,6 +24,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
 		self.logger = logger
 		self.local_properties = local_properties
+        self.logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
 
 	# ######################################################
 	# Added methods
