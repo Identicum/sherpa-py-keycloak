@@ -12,12 +12,17 @@ from importlib.metadata import version
 from keycloak import KeycloakAdmin
 from keycloak.urls_patterns import URL_ADMIN_REALM
 from keycloak.exceptions import (
-    KeycloakGetError,
-    KeycloakPutError,
-    raise_error_from_response
+     KeycloakDeleteError,
+     KeycloakGetError,
+     KeycloakPutError,
+     raise_error_from_response
 )
+from sherpa.utils.clients import OIDCClient
+
 
 URL_ADMIN_REALM_USERPROFILE = URL_ADMIN_REALM + "/users/profile"
+URL_ADMIN_SESSION = "admin/realms/{realm-name}/sessions/{id}"
+
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
 	def __init__(self, logger, local_properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
@@ -450,17 +455,17 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 						self.create_client(json_data, skip_exists=True)
 
 
-	# def sherpa_import_users(self, objects_folder, temp_file):
-	# 	self.logger.debug("Importing users from: {}", objects_folder)
-	# 	for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
-	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
-	# 			self.logger.debug("Processing file: {}", directory_entry.path)
-	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
-	# 			with open(temp_file) as json_file:
-	# 				json_data = json.load(json_file)
-	# 				self.logger.trace("User definition: {}", json_data)
-	# 				self.create_user(json_data, exist_ok=True)
+	def sherpa_import_users(self, objects_folder, temp_file):
+		self.logger.debug("Importing users from: {}", objects_folder)
+		for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
+			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
+				self.logger.debug("Processing file: {}", directory_entry.path)
+				shutil.copyfile(directory_entry.path, temp_file)
+				self.local_properties.replace(temp_file)
+				with open(temp_file) as json_file:
+					json_data = json.load(json_file)
+					self.logger.trace("User definition: {}", json_data)
+					self.create_user(json_data, exist_ok=True)
 
 
 	# def sherpa_assign_roles_to_client(self, client, role_names):
@@ -474,6 +479,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		self.logger.debug("role: {}", role)
 	# 		self.assign_client_role(client_id=realm_management_client_id, user_id=user_id, roles=role)
 
+
 	def sherpa_assign_realm_role_to_client(self, client, role_name):
 		client_id = self.get_client_id(client)
 		self.logger.debug("client_id: {}", client_id)
@@ -482,3 +488,79 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		role = self.get_realm_role(role_name)
 		self.logger.debug("role_id: {}", role)
 		self.assign_realm_roles(user_id=user_id, roles=[role])
+
+
+	def sherpa_delete_session(self, session_id):
+		""" Delete specific session
+
+        :param session_id: Session id
+        :type session_id: str
+
+        :returns: Keycloak server response
+        :rtype: bytes
+		"""
+
+		self.logger.trace("Deleting session: {}", session_id)
+		params_path = {"realm-name": self.connection.realm_name, "id": session_id}
+		data_raw = self.connection.raw_delete(URL_ADMIN_SESSION.format(**params_path))
+		return raise_error_from_response(data_raw, KeycloakDeleteError, expected_codes=[204])
+
+
+	def sherpa_logout_user_client_sessions(self, user_id, client_keycloak_id):
+		""" Logout user sessions for a specific Client.
+
+        :param user_id: User id
+        :type user_id: str
+	    :param client_keycloak_id: Client's keycloak id
+        :type client_keycloak_id: str
+
+        :returns: Keycloak server response
+        :rtype: bytes
+		"""
+
+		client_sessions = self.get_client_all_sessions(client_keycloak_id)
+		self.logger.debug("client_sessions: {}", client_sessions)
+		for client_session in client_sessions:
+			if client_session["userId"] == user_id:
+				self.logger.debug("Logging out user session: {}", client_session["id"])
+				self.sherpa_delete_session(client_session["id"])
+
+
+	def sherpa_logout_user_sessions(self, user_id=None, username=None, email=None, client_keycloak_id=None, client_id=None):
+		""" Logout user sessions.
+
+        :param user_id: User id
+        :type user_id: str
+        :param username: username
+        :type username: str
+        :param email: email
+        :type email: str
+	    :param client_keycloak_id: Client's keycloak id
+        :type client_keycloak_id: str
+        :param client_id: client_id
+        :type client_id: str
+
+        :returns: Keycloak server response
+        :rtype: bytes
+		"""
+
+		if user_id is None:
+			if username is not None:
+				user_id = self.get_user_id(username=username)
+			elif email is not None:
+				user_id = self.get_user_id(email=email)
+		if user_id is None:
+			self.logger.warn("No user founf. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
+
+		if client_keycloak_id is None:
+			if client_id is not None:
+				client_keycloak_id = self.sherpa_get_client_keycloakid(client_id=client_id)
+
+		if client_keycloak_id is None:
+			self.logger.debug("No Client specified, logout ALL user sessions.")
+			return self.user_logout(user_id)
+		else:
+			self.logger.debug("Logout user sessions for client: {}", client_keycloak_id)
+			return self.sherpa_logout_user_client_sessions(user_id=user_id, client_keycloak_id=client_keycloak_id)
+
+

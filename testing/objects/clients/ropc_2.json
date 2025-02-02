@@ -1,0 +1,9 @@
+{
+	"clientId": "ropc2_client_id",
+	"secret": "ropc2_client_secret",
+	"standardFlowEnabled": false,
+	"implicitFlowEnabled": false,
+	"directAccessGrantsEnabled": true,
+	"serviceAccountsEnabled": false,
+	"defaultClientScopes": [ "profile", "email" ]
+}

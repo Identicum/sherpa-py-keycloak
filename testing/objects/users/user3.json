@@ -1,0 +1,9 @@
+{
+    "username": "user3",
+    "email": "user3@test.com",
+    "enabled": true,
+    "emailVerified": true,
+    "credentials": [ {"type": "password", "value": "user3"} ],
+    "firstName": "User",
+    "lastName": "User"
+}
