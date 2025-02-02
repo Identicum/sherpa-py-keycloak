@@ -1,5 +1,5 @@
-# sherpa-py-janssen is available under the MIT License. https://github.com/Identicum/sherpa-py-janssen/
-# Copyright (c) 2024, Identicum - https://identicum.com/
+# sherpa-py-janssen is available under the MIT License. https://github.com/Identicum/sherpa-py-keycloak/
+# Copyright (c) 2025, Identicum - https://identicum.com/
 #
 # Author: Gustavo J Gallardo - ggallard@identicum.com
 #
@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='sherpa-py-keycloak',
-    version='1.0.20250128',
+    version='1.0.20250202',
     description='Python utilities for Keycloak',
     url='git@github.com:Identicum/sherpa-py-keycloak.git',
     author='Identicum',
