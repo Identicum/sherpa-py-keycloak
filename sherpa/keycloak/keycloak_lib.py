@@ -10,7 +10,7 @@ import os
 import shutil
 from importlib.metadata import version
 from keycloak import KeycloakAdmin
-from keycloak.urls_patterns import URL_ADMIN_REALM
+from keycloak.urls_patterns import URL_ADMIN_REALM, URL_ADMIN_USER, URL_ADMIN_CLIENT
 from keycloak.exceptions import (
      KeycloakDeleteError,
      KeycloakGetError,
@@ -22,6 +22,9 @@ from sherpa.utils.clients import OIDCClient
 
 URL_ADMIN_REALM_USERPROFILE = URL_ADMIN_REALM + "/users/profile"
 URL_ADMIN_SESSION = "admin/realms/{realm-name}/sessions/{id}"
+URL_ADMIN_USER_CLIENT_OFFLINESESSIONS = URL_ADMIN_USER + "/offline-sessions/{client-id}"
+URL_ADMIN_CLIENT_OFFLINESESSION_COUNT = URL_ADMIN_CLIENT + "/offline-session-count"
+URL_ADMIN_CLIENT_OFFLINESESSIONS = URL_ADMIN_CLIENT + "/offline-sessions"
 
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
@@ -77,6 +80,21 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			userprofile["unmanagedAttributePolicy"] = unmanaged_attributes_policy
 		self.update_realm_userprofile(userprofile)
 
+
+	def get_user_client_offlinesessions(self, user_id=None, client_keycloak_id=None):
+		"""Get the users's offline sessions for a particular Client.
+
+		:param user_id: User's keycloak id
+		:type user_id: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
+
+		:returns: Keycloak server response
+		:rtype: bytes
+		"""
+		params_path = {"realm-name": self.connection.realm_name, "id": user_id, "client-id": client_keycloak_id}
+		data_raw = self.connection.raw_get(URL_ADMIN_USER_CLIENT_OFFLINESESSIONS.format(**params_path))
+		return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[200])
 
 	# ######################################################
 	# Sherpa methods
@@ -530,19 +548,19 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	def sherpa_logout_user_sessions(self, user_id=None, username=None, email=None, client_keycloak_id=None, client_id=None):
 		""" Logout user sessions.
 
-        :param user_id: User id
-        :type user_id: str
-        :param username: username
-        :type username: str
-        :param email: email
-        :type email: str
-	    :param client_keycloak_id: Client's keycloak id
-        :type client_keycloak_id: str
-        :param client_id: client_id
-        :type client_id: str
+		:param user_id: User id
+		:type user_id: str
+		:param username: username
+		:type username: str
+		:param email: email
+		:type email: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
+		:param client_id: client_id
+		:type client_id: str
 
-        :returns: Keycloak server response
-        :rtype: bytes
+		:returns: Keycloak server response
+		:rtype: bytes
 		"""
 
 		if user_id is None:
@@ -551,7 +569,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			elif email is not None:
 				user_id = self.get_user_id(email=email)
 		if user_id is None:
-			self.logger.warn("No user founf. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
+			self.logger.warn("No user found. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
 
 		if client_keycloak_id is None:
 			if client_id is not None:
@@ -568,13 +586,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	def sherpa_get_client_sessions(self, client_keycloak_id=None, client_id=None):
 		""" Logout user sessions.
 
-	    :param client_keycloak_id: Client's keycloak id
-        :type client_keycloak_id: str
-        :param client_id: client_id
-        :type client_id: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
+		:param client_id: client_id
+		:type client_id: str
 
-        :returns: Keycloak server response
-        :rtype: bytes
+		:returns: Keycloak server response
+		:rtype: bytes
 		"""
 
 		if client_keycloak_id is None:
@@ -586,3 +604,39 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		else:
 			self.logger.debug("Getting client sessions for client: {}", client_keycloak_id)
 			return self.get_client_all_sessions(client_id=client_keycloak_id)
+
+	def sherpa_get_user_client_offlinesessions(self, user_id=None, username=None, email=None, client_keycloak_id=None, client_id=None):
+		""" Logout user sessions.
+
+		:param user_id: User id
+		:type user_id: str
+		:param username: username
+		:type username: str
+		:param email: email
+		:type email: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
+		:param client_id: client_id
+		:type client_id: str
+
+		:returns: Keycloak server response
+		:rtype: bytes
+		"""
+
+		if user_id is None:
+			if username is not None:
+				user_id = self.get_user_id(username=username)
+			elif email is not None:
+				user_id = self.get_user_id(email=email)
+		if user_id is None:
+			self.logger.error("No user found. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
+
+		if client_keycloak_id is None:
+			if client_id is not None:
+				client_keycloak_id = self.sherpa_get_client_keycloakid(client_id=client_id)
+
+		if client_keycloak_id is None:
+			self.logger.error("No Client found. Received parameters: client_id: {}, keycloak_client_id: {}.", client_id, client_keycloak_id)
+		else:
+			self.logger.debug("Logout user sessions for client: {}", client_keycloak_id)
+			return self.get_user_client_offlinesessions(user_id=user_id, client_keycloak_id=client_keycloak_id)

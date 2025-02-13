@@ -1,6 +1,6 @@
 {
-	"clientId": "ropc3_client_id",
-	"secret": "ropc3_client_secret",
+	"clientId": "ropc4_client_id",
+	"secret": "ropc4_client_secret",
 	"standardFlowEnabled": false,
 	"implicitFlowEnabled": false,
 	"directAccessGrantsEnabled": true,

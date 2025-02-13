@@ -30,7 +30,8 @@ def run(logger, local_properties):
 	ropc_clients = [
 		["ropc1_client_id", "ropc1_client_secret"],
 		["ropc2_client_id", "ropc2_client_secret"],
-		["ropc3_client_id", "ropc3_client_secret"]
+		["ropc3_client_id", "ropc3_client_secret"],
+		["ropc4_client_id", "ropc4_client_secret"]
 	]
 	users = ['user1', 'user2', 'user3', 'user4']
 	sessions_per_user = 3
@@ -47,7 +48,7 @@ def run(logger, local_properties):
 	custom_admin = SherpaKeycloakAdmin(logger=logger, local_properties=local_properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
 
 	logger.info("Killing sessions.")
-	custom_admin.sherpa_logout_user_sessions(username='user1', client_id=None)
+	# custom_admin.sherpa_logout_user_sessions(username='user1', client_id=None)
 	# custom_admin.sherpa_logout_user_sessions(username='user2', client_id=None)
 	# custom_admin.sherpa_logout_user_sessions(username='user3', client_id=None)
 	# custom_admin.sherpa_logout_user_sessions(username='user4', client_id=None)
@@ -56,13 +57,21 @@ def run(logger, local_properties):
 	logger.info("get_client_sessions_stats().")
 	client_session_stats = custom_admin.get_client_sessions_stats()
 	for client_session_stat in client_session_stats:
-		logger.info("Client: {} ({}), active sesions: {}", client_session_stat['clientId'], client_session_stat['id'], client_session_stat['active'])
+		logger.info("Client: {} ({}), active sesions: {}, offline sessions: {}", client_session_stat['clientId'], client_session_stat['id'], client_session_stat['active'], client_session_stat['offline'])
 
-	logger.info("sherpa_get_client_sessions().")
-	for ropc_client in ropc_clients:
-		client_id = ropc_client[0]
-		client_sessions = custom_admin.sherpa_get_client_sessions(client_id=client_id)
-		logger.info("Client sessions for {}: {}", client_id, len(client_sessions))
+	# logger.info("sherpa_get_client_sessions().")
+	# for ropc_client in ropc_clients:
+	# 	client_id = ropc_client[0]
+	# 	client_sessions = custom_admin.sherpa_get_client_sessions(client_id=client_id)
+	# 	logger.info("Client sessions for {}: {}", client_id, len(client_sessions))
+
+	logger.info("sherpa_get_user_client_offlinesessions().")
+	client_id = 'ropc3_client_id'
+	username = 'user2'
+	user_client_offlinesessions = custom_admin.sherpa_get_user_client_offlinesessions(username=username, client_id=client_id)
+	logger.info("Offline sessions for client_id: {}, username: {} are: {}", client_id, username, len(user_client_offlinesessions))
+
+
 
 
 if __name__ == "__main__":
