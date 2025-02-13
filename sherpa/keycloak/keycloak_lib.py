@@ -26,10 +26,11 @@ URL_ADMIN_SESSION = "admin/realms/{realm-name}/sessions/{id}"
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
 	def __init__(self, logger, local_properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
-		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
 		self.logger = logger
 		self.local_properties = local_properties
 		self.logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
+		self.logger.debug("Initializing with server_url: {}, username: {}, realm_name: {}, client_id: {}, user_realm_name: {}", server_url, username, realm_name, client_id, user_realm_name)
+		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
 
 	# ######################################################
 	# Added methods
