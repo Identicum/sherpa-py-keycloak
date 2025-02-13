@@ -13,7 +13,7 @@ from keycloak_lib import SherpaKeycloakAdmin
 
 
 def main(arguments):
-	logger = Logger(os.path.basename(__file__), "TRACE", "./testing/test.log")
+	logger = Logger(os.path.basename(__file__), "INFO", "./testing/test.log")
 	local_properties = Properties("./testing/local.properties", "./testing/local.properties")
 	run(logger, local_properties)
 	logger.info("{} finished.".format(os.path.basename(__file__)))
@@ -27,19 +27,42 @@ def run(logger, local_properties):
 	temp_file = "./testing/temp.json"
 	idp_url = keycloak_base_url + "realms/" + custom_realm
 
-	logger.debug("Creating user sessions.")
-	oidc_client = OIDCClient(idp_url=idp_url, logger=logger)
-	for client_credentials in [http.to_base64_creds('ropc1_client_id', 'ropc1_client_secret'),
-							   http.to_base64_creds('ropc2_client_id', 'ropc2_client_secret')]:
-		for user in ['user1', 'user2', 'user3']:
-			oidc_client.do_ropc(client_credentials, username=user, password=user)
+	ropc_clients = [
+		["ropc1_client_id", "ropc1_client_secret"],
+		["ropc2_client_id", "ropc2_client_secret"],
+		["ropc3_client_id", "ropc3_client_secret"]
+	]
+	users = ['user1', 'user2', 'user3', 'user4']
+	sessions_per_user = 3
 
-	logger.debug("Connecting to custom realm: {}", custom_realm)
+	# logger.debug("Creating user sessions.")
+	# oidc_client = OIDCClient(idp_url=idp_url, logger=logger)
+	# for ropc_client in ropc_clients:
+	# 	client_credentials=http.to_base64_creds(ropc_client[0], ropc_client[1])
+	# 	for user in users:
+	# 		for i in range(sessions_per_user):
+	# 			oidc_client.do_ropc(client_credentials, username=user, password=user)
+
+	logger.info("Connecting to custom realm: {}", custom_realm)
 	custom_admin = SherpaKeycloakAdmin(logger=logger, local_properties=local_properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
 
+	logger.info("Killing sessions.")
 	custom_admin.sherpa_logout_user_sessions(username='user1', client_id=None)
-	custom_admin.sherpa_logout_user_sessions(username='user2', client_id='ropc2_client_id')
+	# custom_admin.sherpa_logout_user_sessions(username='user2', client_id=None)
+	# custom_admin.sherpa_logout_user_sessions(username='user3', client_id=None)
+	# custom_admin.sherpa_logout_user_sessions(username='user4', client_id=None)
+	# custom_admin.sherpa_logout_user_sessions(username='user2', client_id='ropc2_client_id')
 
+	logger.info("get_client_sessions_stats().")
+	client_session_stats = custom_admin.get_client_sessions_stats()
+	for client_session_stat in client_session_stats:
+		logger.info("Client: {} ({}), active sesions: {}", client_session_stat['clientId'], client_session_stat['id'], client_session_stat['active'])
+
+	logger.info("sherpa_get_client_sessions().")
+	for ropc_client in ropc_clients:
+		client_id = ropc_client[0]
+		client_sessions = custom_admin.sherpa_get_client_sessions(client_id=client_id)
+		logger.info("Client sessions for {}: {}", client_id, len(client_sessions))
 
 
 if __name__ == "__main__":

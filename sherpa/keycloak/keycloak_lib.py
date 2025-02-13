@@ -564,3 +564,24 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			return self.sherpa_logout_user_client_sessions(user_id=user_id, client_keycloak_id=client_keycloak_id)
 
 
+	def sherpa_get_client_sessions(self, client_keycloak_id=None, client_id=None):
+		""" Logout user sessions.
+
+	    :param client_keycloak_id: Client's keycloak id
+        :type client_keycloak_id: str
+        :param client_id: client_id
+        :type client_id: str
+
+        :returns: Keycloak server response
+        :rtype: bytes
+		"""
+
+		if client_keycloak_id is None:
+			if client_id is not None:
+				client_keycloak_id = self.sherpa_get_client_keycloakid(client_id=client_id)
+
+		if client_keycloak_id is None:
+			self.logger.error("No Client specified.")
+		else:
+			self.logger.debug("Getting client sessions for client: {}", client_keycloak_id)
+			return self.get_client_all_sessions(client_id=client_keycloak_id)
