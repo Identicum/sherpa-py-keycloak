@@ -1,48 +1,51 @@
 services:
-  db:
-      container_name: db
-      image: ghcr.io/identicum/postgres:15
-      restart: always
-      pull_policy: always
-      ports:
-          - 5432:5432
-      environment:
-          POSTGRES_PASSWORD: postgrespwd
-      volumes:
-          - ./postgres-initdb/:/docker-entrypoint-initdb.d/
+    db:
+        container_name: db
+        image: ghcr.io/identicum/postgres:16
+        restart: always
+        pull_policy: always
+        ports:
+            - 5432:5432
+        environment:
+            POSTGRES_PASSWORD: postgrespwd
+        volumes:
+            - ./postgres-initdb/:/docker-entrypoint-initdb.d/
+        command: ["postgres", "-c", "log_statement=all"]
 
-  idp:
-    container_name: idp
-    image: ghcr.io/identicum/keycloak:26.1
-    restart: always
-    environment:
-      KC_BOOTSTRAP_ADMIN_USERNAME: admin
-      KC_BOOTSTRAP_ADMIN_PASSWORD: admin
-      KC_DB: postgres
-      KC_DB_URL: jdbc:postgresql://db/keycloakdb
-      KC_DB_USERNAME: keycloakusr
-      KC_DB_PASSWORD: keycloakpwd
-    ports:
-      - 8080:8080
+    idp:
+        container_name: idp
+        image: ghcr.io/identicum/keycloak:26.1
+        restart: always
+        ports:
+            - 8080:8080
+        environment:
+            KC_BOOTSTRAP_ADMIN_USERNAME: admin
+            KC_BOOTSTRAP_ADMIN_PASSWORD: admin
+            KC_DB: postgres
+            KC_DB_URL: jdbc:postgresql://db/keycloakdb
+            KC_DB_USERNAME: keycloakusr
+            KC_DB_PASSWORD: keycloakpwd
+        volumes:
+            - ./keycloak.conf:/opt/keycloak/conf/keycloak.conf
 
-  idp_setup:
-      container_name: idp_setup
-      image: ghcr.io/identicum/sherpa-deploy:latest
-      pull_policy: always
-      volumes:
-          - ../:/usr/home/
-      command: "./testing/deploy.py"
-      depends_on:
-          idp:
-              condition: service_healthy
+    idp_setup:
+        container_name: idp_setup
+        image: ghcr.io/identicum/sherpa-deploy:latest
+        pull_policy: always
+        volumes:
+            - ../:/usr/home/
+        command: "./testing/deploy.py"
+        depends_on:
+            idp:
+                condition: service_healthy
 
-  idp_test:
-      container_name: idp_test
-      image: ghcr.io/identicum/sherpa-deploy:latest
-      pull_policy: always
-      volumes:
-          - ../:/usr/home/
-      # command: "./testing/test.py"
-      depends_on:
-          idp_setup:
-              condition: service_completed_successfully
+    idp_test:
+        container_name: idp_test
+        image: ghcr.io/identicum/sherpa-deploy:latest
+        pull_policy: always
+        volumes:
+            - ../:/usr/home/
+        # command: "./testing/test.py"
+        depends_on:
+            idp_setup:
+                condition: service_completed_successfully

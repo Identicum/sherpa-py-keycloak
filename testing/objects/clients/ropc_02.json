@@ -1,0 +1,13 @@
+{
+	"clientId"                 : "ropc02_client_id",
+	"secret"                   : "ropc02_client_secret",
+	"standardFlowEnabled"      : false,
+	"implicitFlowEnabled"      : false,
+	"directAccessGrantsEnabled": true,
+	"serviceAccountsEnabled"   : false,
+	"defaultClientScopes"      : [ "profile", "email" ],
+	"attributes": {
+		"access.token.lifespan"      : "120",
+		"client.session.idle.timeout": "120"
+	}
+}
