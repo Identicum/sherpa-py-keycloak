@@ -27,7 +27,7 @@ def run(logger, local_properties):
 	master_admin = SherpaKeycloakAdmin(logger=logger, local_properties=local_properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password)
 
 	logger.debug("Importing Clients in master realm")
-	master_admin.sherpa_import_clients("./testing/objects/master_clients", temp_file)
+	master_admin.sherpa_import_clients("./testing/master_objects/clients", temp_file)
 	master_admin.sherpa_assign_realm_role_to_client("test_client_creds", "admin")
 
 	logger.debug("Importing custom realm")
@@ -39,7 +39,7 @@ def run(logger, local_properties):
 	logger.debug("Importing Clients in custom realm")
 	custom_admin.sherpa_import_clients("./testing/objects/clients", temp_file)
 
-	logger.debug("Importing users in custom realm")
+	logger.debug("Importing Users in custom realm")
 	custom_admin.sherpa_import_users("./testing/objects/users", temp_file)
 
 
