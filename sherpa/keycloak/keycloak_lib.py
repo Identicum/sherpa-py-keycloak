@@ -164,6 +164,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 	def get_client_offlinesessions(self, client_id=None):
 		"""Get the offline sessions for a particular Client.
+		Returns PAGINATED
 		GET /admin/realms/{realm-name}/clients/{id}/offline-sessions
 
 		:param client_id: Client's keycloak id
@@ -269,14 +270,14 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 	return False
 
 
-	# def sherpa_get_authentication_flow(self, flow_alias):
-	# 	authentication_flows = self.get_authentication_flows()
-	# 	for authentication_flow in authentication_flows:
-	# 		self.logger.trace("sherpa_get_authentication_flow(). Searching: {}, current: {}", flow_alias, authentication_flow["alias"])
-	# 		if authentication_flow["alias"] == flow_alias:
-	# 			return authentication_flow
-	# 	self.logger.debug("sherpa_get_authentication_flow(). Flow '{}' not found.", flow_alias)
-	# 	return None
+	def sherpa_get_authentication_flow(self, flow_alias):
+		authentication_flows = self.get_authentication_flows()
+		for authentication_flow in authentication_flows:
+			self.logger.trace("sherpa_get_authentication_flow(). Searching: {}, current: {}", flow_alias, authentication_flow["alias"])
+			if authentication_flow["alias"] == flow_alias:
+				return authentication_flow
+		self.logger.debug("sherpa_get_authentication_flow(). Flow '{}' not found.", flow_alias)
+		return None
 
 
 	# def sherpa_get_subflow_by_id(self, flow_alias, execution_id):
