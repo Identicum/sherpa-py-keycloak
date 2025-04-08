@@ -13,7 +13,7 @@ from keycloak_lib import SherpaKeycloakAdmin
 
 
 def main(arguments):
-	logger = Logger(os.path.basename(__file__), "DEBUG", "./testing/test.log")
+	logger = Logger(os.path.basename(__file__), "DEBUG", "./testing/test_sessions.log")
 	local_properties = Properties("./testing/local.properties", "./testing/local.properties")
 	run(logger, local_properties)
 	logger.info("{} finished.".format(os.path.basename(__file__)))
@@ -59,48 +59,48 @@ def run(logger, local_properties):
 	for client_session_stat in sorted_client_session_stats:
 		logger.info("get_client_sessions_stats() ({}), active: {}, offline: {}", client_session_stat['clientId'], client_session_stat['active'], client_session_stat['offline'])
 
-	# for ropc_client in ropc_clients:
-	# 	client_id = ropc_client[0]
-	# 	client_keycloak_id = custom_admin.get_client_id(client_id)
-	# 	client_session_count = custom_admin.get_client_sessioncount(client_id=client_keycloak_id)
-	# 	logger.info("get_client_sessioncount({}): {}", client_id, client_session_count)
+	for ropc_client in ropc_clients:
+		client_id = ropc_client[0]
+		client_keycloak_id = custom_admin.get_client_id(client_id)
+		client_session_count = custom_admin.get_client_sessioncount(client_id=client_keycloak_id)
+		logger.info("get_client_sessioncount({}): {}", client_id, client_session_count)
 
-	# for ropc_client in [ropc_clients[1], ropc_clients[3]]:
-	# 	client_id = ropc_client[0]
-	# 	client_keycloak_id = custom_admin.get_client_id(client_id)
-	# 	query = { "first": 0, "max": 1000 }
-	# 	client_sessions = custom_admin.get_client_all_sessions(client_id=client_keycloak_id, query=query)
-	# 	logger.info("get_client_all_sessions({}): {}", client_id, len(client_sessions))
+	for ropc_client in [ropc_clients[1], ropc_clients[3]]:
+		client_id = ropc_client[0]
+		client_keycloak_id = custom_admin.get_client_id(client_id)
+		query = { "first": 0, "max": 1000 }
+		client_sessions = custom_admin.get_client_all_sessions(client_id=client_keycloak_id, query=query)
+		logger.info("get_client_all_sessions({}): {}", client_id, len(client_sessions))
 
-	# for ropc_client in ropc_clients:
-	# 	client_id = ropc_client[0]
-	# 	client_keycloak_id = custom_admin.get_client_id(client_id)
-	# 	client_session_count = custom_admin.get_client_offlinesessioncount(client_id=client_keycloak_id)
-	# 	logger.info("get_client_offlinesessioncount({}): {}", client_id, client_session_count)
+	for ropc_client in ropc_clients:
+		client_id = ropc_client[0]
+		client_keycloak_id = custom_admin.get_client_id(client_id)
+		client_session_count = custom_admin.get_client_offlinesessioncount(client_id=client_keycloak_id)
+		logger.info("get_client_offlinesessioncount({}): {}", client_id, client_session_count)
 
-	# for ropc_client in ropc_clients:
-	# 	client_id = ropc_client[0]
-	# 	client_keycloak_id = custom_admin.get_client_id(client_id)
-	# 	client_offline_sessions = custom_admin.get_client_offlinesessions(client_id=client_keycloak_id)
-	# 	logger.info("get_client_offlinesessions({}): {}", client_id, len(client_offline_sessions))
-	# 	if len(client_offline_sessions) > 0:
-	# 		logger.info("First offline session: {}", client_offline_sessions[0])
+	for ropc_client in ropc_clients:
+		client_id = ropc_client[0]
+		client_keycloak_id = custom_admin.get_client_id(client_id)
+		client_offline_sessions = custom_admin.get_client_offlinesessions(client_id=client_keycloak_id)
+		logger.info("get_client_offlinesessions({}): {}", client_id, len(client_offline_sessions))
+		if len(client_offline_sessions) > 0:
+			logger.info("First offline session: {}", client_offline_sessions[0])
 
-	# for username in [users[0], users[1]]:
-	# 	user_id = custom_admin.get_user_id(username)
-	# 	for ropc_client in ropc_clients:
-	# 		client_id = ropc_client[0]
-	# 		client_keycloak_id = custom_admin.get_client_id(client_id)
-	# 		user_client_offlinesessions = custom_admin.get_user_client_offlinesessions(user_id=user_id, client_id=client_keycloak_id)
-	# 		logger.info("get_user_client_offlinesessions({}, {}): {}", username, client_id, len(user_client_offlinesessions))
+	for username in [users[0], users[1]]:
+		user_id = custom_admin.get_user_id(username)
+		for ropc_client in ropc_clients:
+			client_id = ropc_client[0]
+			client_keycloak_id = custom_admin.get_client_id(client_id)
+			user_client_offlinesessions = custom_admin.get_user_client_offlinesessions(user_id=user_id, client_id=client_keycloak_id)
+			logger.info("get_user_client_offlinesessions({}, {}): {}", username, client_id, len(user_client_offlinesessions))
 
-	# client_id = ropc_clients[3][0]
-	# client_keycloak_id = custom_admin.get_client_id(client_id)
-	# client_offline_sessions = custom_admin.get_client_offlinesessions(client_id=client_keycloak_id)
-	# for client_offline_session in client_offline_sessions:
-	# 	logger.info("Delete session feedback: {}", custom_admin.delete_session(client_offline_session['id'], isOffline=True))
+	client_id = ropc_clients[3][0]
+	client_keycloak_id = custom_admin.get_client_id(client_id)
+	client_offline_sessions = custom_admin.get_client_offlinesessions(client_id=client_keycloak_id)
+	for client_offline_session in client_offline_sessions:
+		logger.info("Delete session feedback: {}", custom_admin.delete_session(client_offline_session['id'], isOffline=True))
 
-	# logger.info("logout_all_users(): {}", custom_admin.logout_all_users())
+	logger.info("logout_all_users(): {}", custom_admin.logout_all_users())
 
 
 if __name__ == "__main__":
