@@ -10,13 +10,13 @@ from keycloak_lib import SherpaKeycloakAdmin
 
 
 def main(arguments):
-	logger = Logger(os.path.basename(__file__), "TRACE", "./testing/setup.log")
-	local_properties = Properties("./testing/local.properties", "./testing/local.properties")
-	run(logger, local_properties)
+	properties = Properties("./testing/local.properties", "./testing/local.properties")
+	logger = Logger(os.path.basename(__file__), properties.get("log_level"), properties.get("log_file"))
+	run(logger, properties)
 	logger.info("{} finished.".format(os.path.basename(__file__)))
 
 
-def run(logger, local_properties):
+def run(logger, properties):
 	keycloak_base_url = "http://idp:8080/"
 	custom_realm = "testrealm"
 	keycloak_user = "admin"
@@ -24,7 +24,7 @@ def run(logger, local_properties):
 	temp_file = "./testing/temp.json"
 
 	logger.debug("Connecting to master realm")
-	master_admin = SherpaKeycloakAdmin(logger=logger, local_properties=local_properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password)
+	master_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password)
 
 	logger.debug("Importing Clients in master realm")
 	master_admin.sherpa_import_clients("./testing/master_objects/clients", temp_file)
@@ -34,7 +34,7 @@ def run(logger, local_properties):
 	master_admin.sherpa_create_realm("./testing/objects/realm.json", temp_file)
 
 	logger.debug("Connecting to custom realm: {}", custom_realm)
-	custom_admin = SherpaKeycloakAdmin(logger=logger, local_properties=local_properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
+	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
 
 	logger.debug("Importing Clients in custom realm")
 	custom_admin.sherpa_import_clients("./testing/objects/clients", temp_file)

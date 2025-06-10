@@ -31,9 +31,9 @@ URL_ADMIN_CLIENT_OFFLINESESSIONS = URL_ADMIN_CLIENT + "/offline-sessions"
 
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
-	def __init__(self, logger, local_properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
+	def __init__(self, logger, properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
 		self.logger = logger
-		self.local_properties = local_properties
+		self.properties = properties
 		self.logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
 		self.logger.debug("Initializing with server_url: {}, username: {}, realm_name: {}, client_id: {}, user_realm_name: {}", server_url, username, realm_name, client_id, user_realm_name)
 		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
@@ -304,7 +304,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 	def sherpa_create_realm(self, realm_json_file, temp_file):
 		shutil.copyfile(realm_json_file, temp_file)
-		self.local_properties.replace(temp_file)
+		self.properties.replace(temp_file)
 		with open(temp_file) as json_file:
 			json_data = json.load(json_file)
 			self.logger.trace("json_data: {}", json_data)
@@ -357,7 +357,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 	# 			self.logger.debug("Processing file: {}", directory_entry.path)
 	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
+	# 			self.properties.replace(temp_file)
 	# 			with open(temp_file) as json_file:
 	# 				json_data = json.load(json_file)
 	# 				if "defaultDefaultClientScopes" in json_data:
@@ -378,7 +378,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 	# 			self.logger.debug("Processing file: {}", directory_entry.path)
 	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
+	# 			self.properties.replace(temp_file)
 	# 			with open(temp_file) as json_file:
 	# 				json_data = json.load(json_file)
 	# 				self.logger.trace("Component definition: {}", json_data)
@@ -404,7 +404,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 	# 			self.logger.debug("Processing file: {}", directory_entry.path)
 	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
+	# 			self.properties.replace(temp_file)
 	# 			with open(temp_file) as json_file:
 	# 				json_data = json.load(json_file)
 	# 				self.logger.trace("ID provider definition: {}", json_data)
@@ -461,7 +461,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 	# 			self.logger.debug("Processing file: {}", directory_entry.path)
 	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
+	# 			self.properties.replace(temp_file)
 	# 			with open(temp_file) as json_file:
 	# 				authentication_flow = json.load(json_file)
 	# 				authentication_executions = authentication_flow["authenticationExecutions"]
@@ -542,7 +542,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# 		if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 	# 			self.logger.debug("Processing file: {}", directory_entry.path)
 	# 			shutil.copyfile(directory_entry.path, temp_file)
-	# 			self.local_properties.replace(temp_file)
+	# 			self.properties.replace(temp_file)
 	# 			with open(temp_file) as json_file:
 	# 				json_data = json.load(json_file)
 	# 				self.logger.trace("Client scope definition: {}", json_data)
@@ -582,7 +582,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 				self.logger.debug("Processing file: {}", directory_entry.path)
 				shutil.copyfile(directory_entry.path, temp_file)
-				self.local_properties.replace(temp_file)
+				self.properties.replace(temp_file)
 				with open(temp_file) as json_file:
 					json_data = json.load(json_file)
 					self.logger.trace("Client definition: {}", json_data)
@@ -602,7 +602,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
 				self.logger.debug("Processing file: {}", directory_entry.path)
 				shutil.copyfile(directory_entry.path, temp_file)
-				self.local_properties.replace(temp_file)
+				self.properties.replace(temp_file)
 				with open(temp_file) as json_file:
 					json_data = json.load(json_file)
 					self.logger.trace("User definition: {}", json_data)
