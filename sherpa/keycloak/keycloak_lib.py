@@ -38,7 +38,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
 		if username is not None:
 			logger.trace("Authenticating using username: {}", username)
-			if password is None:
+			if password is None or password == "":
 				validators.raise_and_log(logger, Exception, "Missing password for username: {}", username)
 		else:
 			logger.trace("Authenticating using client_credentials")
