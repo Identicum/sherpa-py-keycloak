@@ -18,6 +18,7 @@ from keycloak.exceptions import (
      KeycloakPutError,
      raise_error_from_response
 )
+from sherpa.utils import validators
 from sherpa.utils.clients import OIDCClient
 
 
@@ -34,7 +35,15 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	def __init__(self, logger, properties, server_url, username=None, password=None, realm_name='master', client_id='admin-cli', verify=True, client_secret_key=None, custom_headers=None, user_realm_name=None):
 		self.logger = logger
 		self.properties = properties
-		self.logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
+		logger.debug("SherpaKeycloakAdmin version: " + version("sherpa-py-keycloak"))
+		if username is not None:
+			logger.trace("Authenticating using username: {}", username)
+			if password is None:
+				validators.raise_and_log(logger, Exception, "Missing password for username: {}", username)
+		else:
+			logger.trace("Authenticating using client_credentials")
+			if client_id is None or client_id == "" or client_secret_key is None or client_secret_key == "":
+				validators.raise_and_log(logger, Exception, "Missing client_id or client_secret: {}", user_realm_name)
 		self.logger.debug("Initializing with server_url: {}, username: {}, realm_name: {}, client_id: {}, user_realm_name: {}", server_url, username, realm_name, client_id, user_realm_name)
 		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
 
