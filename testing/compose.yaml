@@ -1,3 +1,5 @@
+name: sherpa-py-keycloak
+
 services:
     db:
         container_name: db
