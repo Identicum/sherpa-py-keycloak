@@ -18,7 +18,6 @@ def main(arguments):
 
 def run(logger, properties):
 	keycloak_base_url = "http://idp:8080/"
-	custom_realm = "testrealm"
 	keycloak_user = "admin"
 	keycloak_password = "admin"
 	temp_file = "./testing/temp.json"
@@ -27,20 +26,21 @@ def run(logger, properties):
 	master_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password)
 
 	logger.debug("Importing Clients in master realm")
-	master_admin.sherpa_import_clients("./testing/master_objects/clients", temp_file)
+	master_admin.sherpa_import_clients("./testing/objects/master/clients", temp_file)
 	master_admin.sherpa_assign_realm_role_to_client("test_client_creds", "admin")
 
-	logger.debug("Importing custom realm")
-	master_admin.sherpa_create_realm("./testing/objects/realm.json", temp_file)
+	for custom_realm in ["testrealm"]:
+		logger.debug("Importing custom realm: {}", custom_realm)
+		master_admin.sherpa_create_realm("./testing/objects/{}/realm.json".format(custom_realm), temp_file)
 
-	logger.debug("Connecting to custom realm: {}", custom_realm)
-	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
+		logger.debug("Connecting to custom realm: {}", custom_realm)
+		custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
 
-	logger.debug("Importing Clients in custom realm")
-	custom_admin.sherpa_import_clients("./testing/objects/clients", temp_file)
+		logger.debug("Importing Clients in realm: {}", custom_realm)
+		custom_admin.sherpa_import_clients("./testing/objects/{}/clients".format(custom_realm), temp_file)
 
-	logger.debug("Importing Users in custom realm")
-	custom_admin.sherpa_import_users("./testing/objects/users", temp_file)
+		logger.debug("Importing Users in realm: {}", custom_realm)
+		custom_admin.sherpa_import_users("./testing/objects/{}/users".format(custom_realm), temp_file)
 
 
 if __name__ == "__main__":
