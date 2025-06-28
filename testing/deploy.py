@@ -42,6 +42,8 @@ def run(logger, properties):
 		logger.debug("Importing Users in realm: {}", custom_realm)
 		custom_admin.sherpa_import_users("./testing/objects/{}/users".format(custom_realm), temp_file)
 
+		logger.debug("Importing Organizations in realm: {}", custom_realm)
+		custom_admin.sherpa_import_organizations("./testing/objects/{}/organizations".format(custom_realm), temp_file)
 
 if __name__ == "__main__":
 	sys.exit(main(sys.argv[1:]))

@@ -1,0 +1,12 @@
+{
+    "name": "sherpa",
+    "alias": "Sherpa",
+    "enabled": true,
+    "description": "",
+    "domains": [
+        {
+            "name": "idsherpa.com",
+            "verified": false
+        }
+    ]
+}

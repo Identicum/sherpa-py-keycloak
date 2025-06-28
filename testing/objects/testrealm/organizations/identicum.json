@@ -1,0 +1,12 @@
+{
+    "name": "identicum",
+    "alias": "Identicum",
+    "enabled": true,
+    "description": "",
+    "domains": [
+        {
+            "name": "identicum.com",
+            "verified": false
+        }
+    ]
+}

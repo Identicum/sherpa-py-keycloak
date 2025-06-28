@@ -618,6 +618,18 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 					self.create_user(json_data, exist_ok=True)
 
 
+	def sherpa_import_organizations(self, objects_folder, temp_file):
+		self.logger.debug("Importing organizations from: {}", objects_folder)
+		for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
+			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
+				self.logger.debug("Processing file: {}", directory_entry.path)
+				shutil.copyfile(directory_entry.path, temp_file)
+				self.properties.replace(temp_file)
+				with open(temp_file) as json_file:
+					json_data = json.load(json_file)
+					self.logger.trace("Organization definition: {}", json_data)
+					self.create_organization(json_data)
+
 	# def sherpa_assign_roles_to_client(self, client, role_names):
 	# 	client_id = self.get_client_id(client)
 	# 	self.logger.debug("client_id: {}", client_id)

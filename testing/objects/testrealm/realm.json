@@ -1,5 +1,7 @@
 {
 	"id": "testrealm",
 	"realm": "testrealm",
-	"enabled": true
+	"enabled": true,
+	"organizationsEnabled": true
+
 }
