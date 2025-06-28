@@ -65,19 +65,19 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def update_realm_userprofile(self, payload):
-			"""Update the realm's UserProfile config.
+		"""Update the realm's UserProfile config.
 
-			:param payload: UPConfig
-			:type payload: dict
+		:param payload: UPConfig
+		:type payload: dict
 
-			:return: Http response
-			:rtype: bytes
-			"""
-			params_path = {"realm-name": self.connection.realm_name, "payload": payload}
-			data_raw = self.connection.raw_put(
-				URL_ADMIN_REALM_USERPROFILE.format(**params_path), data=json.dumps(payload)
-			)
-			return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
+		:return: Http response
+		:rtype: bytes
+		"""
+		params_path = {"realm-name": self.connection.realm_name, "payload": payload}
+		data_raw = self.connection.raw_put(
+			URL_ADMIN_REALM_USERPROFILE.format(**params_path), data=json.dumps(payload)
+		)
+		return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
 
 
 	def update_realm_unmanagedAttributes(self, unmanaged_attributes_policy):
@@ -112,16 +112,16 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def logout_all_users(self):
-			""" Logout all users in realm
-			POST /admin/realms/{realm-name}/logout-all
+		""" Logout all users in realm
+		POST /admin/realms/{realm-name}/logout-all
 
 
-			:return: Http response
-			:rtype: bytes
-			"""
-			params_path = {"realm-name": self.connection.realm_name}
-			data_raw = self.connection.raw_post(URL_ADMIN_REALM_LOGOUT_ALL.format(**params_path), data="")
-			return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
+		:return: Http response
+		:rtype: bytes
+		"""
+		params_path = {"realm-name": self.connection.realm_name}
+		data_raw = self.connection.raw_post(URL_ADMIN_REALM_LOGOUT_ALL.format(**params_path), data="")
+		return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
 
 
 	def get_client_sessioncount(self, client_id=None):
@@ -245,6 +245,15 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		for client in clients:
 			if client_id == client.get('clientId'):
 				return client["id"]
+		return None
+
+
+	def sherpa_get_organization_id(self, organization_name):
+		query = {"name": organization_name}
+		organizations = self.get_organizations(query=query)
+		for organization in organizations:
+			if organization["name"] == organization_name:
+				return organization["id"]
 		return None
 
 
@@ -629,6 +638,14 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 					json_data = json.load(json_file)
 					self.logger.trace("Organization definition: {}", json_data)
 					self.create_organization(json_data)
+
+	def sherpa_add_user_to_organization(self, username, organization_name):
+		user_id = self.get_user_id(username)
+		self.logger.trace("user_id: {}", user_id)
+		organization_id = self.sherpa_get_organization_id(organization_name)
+		self.logger.trace("organization_id: {}", organization_id)
+		return self.organization_user_add(user_id=user_id, organization_id=organization_id)
+
 
 	# def sherpa_assign_roles_to_client(self, client, role_names):
 	# 	client_id = self.get_client_id(client)

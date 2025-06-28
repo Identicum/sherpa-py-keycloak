@@ -1,6 +1,6 @@
 {
     "username": "user3",
-    "email": "user3@test.com",
+    "email": "user3@identicum.com",
     "enabled": true,
     "emailVerified": true,
     "credentials": [ {"type": "password", "value": "user3"} ],

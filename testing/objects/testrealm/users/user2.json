@@ -1,6 +1,6 @@
 {
     "username": "user2",
-    "email": "user2@test.com",
+    "email": "user2@idsherpa.com",
     "enabled": true,
     "emailVerified": true,
     "credentials": [ {"type": "password", "value": "user2"} ],
