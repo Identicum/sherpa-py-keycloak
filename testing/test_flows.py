@@ -11,20 +11,16 @@ from keycloak_lib import SherpaKeycloakAdmin
 
 
 def main(arguments):
-	logger = Logger(os.path.basename(__file__), "DEBUG", "./testing/test_flows.log")
 	properties = Properties("./testing/local.properties", "./testing/local.properties")
+	logger = Logger(os.path.basename(__file__), properties.get("log_level"), "./testing/test_flows.log")
 	run(logger, properties)
 	logger.info("{} finished.".format(os.path.basename(__file__)))
 
 
 def run(logger, properties):
-	keycloak_base_url = "http://idp:8080/"
-	custom_realm = "testrealm"
-	keycloak_user = "admin"
-	keycloak_password = "admin"
-
+	custom_realm = properties.get("keycloak_user")
 	logger.info("Connecting to custom realm: {}", custom_realm)
-	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm, verify=False)
+	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=properties.get("keycloak_base_url"), username=properties.get("keycloak_user"), password=properties.get("keycloak_password"), user_realm_name="master", realm_name=custom_realm)
 
 	# realm_json = custom_admin.get_realm(custom_realm)
 	# logger.debug("get_realm(): {}", realm_json)

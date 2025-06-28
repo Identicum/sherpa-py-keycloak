@@ -13,18 +13,16 @@ from keycloak_lib import SherpaKeycloakAdmin
 
 
 def main(arguments):
-	logger = Logger(os.path.basename(__file__), "DEBUG", "./testing/test_sessions.log")
 	properties = Properties("./testing/local.properties", "./testing/local.properties")
+	logger = Logger(os.path.basename(__file__), properties.get("log_level"), "./testing/test_sessions.log")
 	run(logger, properties)
 	logger.info("{} finished.".format(os.path.basename(__file__)))
 
 
 def run(logger, properties):
-	keycloak_base_url = "http://idp:8080/"
-	custom_realm = "testrealm"
-	keycloak_user = "admin"
-	keycloak_password = "admin"
-	temp_file = "./testing/temp.json"
+	custom_realm = properties.get("keycloak_user")
+	keycloak_base_url = properties.get("keycloak_base_url")
+	logger.info("Connecting to custom realm: {}", custom_realm)
 	idp_url = keycloak_base_url + "realms/" + custom_realm
 
 	ropc_clients = [
@@ -50,8 +48,7 @@ def run(logger, properties):
 			for i in range(sessions_per_user):
 				oidc_client.do_ropc(client_credentials, username=user, password=user)
 
-	logger.info("Connecting to custom realm: {}", custom_realm)
-	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=keycloak_user, password=keycloak_password, user_realm_name="master", realm_name=custom_realm)
+	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=keycloak_base_url, username=properties.get("keycloak_user"), password=properties.get("keycloak_password"), user_realm_name="master", realm_name=custom_realm)
 
 	client_session_stats = custom_admin.get_client_sessions_stats()
 	logger.debug("get_client_sessions_stats(): {}", client_session_stats)
