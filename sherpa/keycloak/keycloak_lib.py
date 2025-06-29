@@ -9,7 +9,7 @@ import json
 import os
 import shutil
 from importlib.metadata import version
-from keycloak import KeycloakAdmin
+from keycloak import KeycloakAdmin, KeycloakOpenID
 from keycloak.urls_patterns import URL_ADMIN_REALM, URL_ADMIN_USER, URL_ADMIN_CLIENT
 from keycloak.exceptions import (
      KeycloakDeleteError,
@@ -29,6 +29,16 @@ URL_ADMIN_USER_CLIENT_OFFLINESESSIONS = URL_ADMIN_USER + "/offline-sessions/{cli
 URL_ADMIN_CLIENT_SESSION_COUNT = URL_ADMIN_CLIENT + "/session-count"
 URL_ADMIN_CLIENT_OFFLINESESSION_COUNT = URL_ADMIN_CLIENT + "/offline-session-count"
 URL_ADMIN_CLIENT_OFFLINESESSIONS = URL_ADMIN_CLIENT + "/offline-sessions"
+
+
+
+class SherpaKeycloakOpenID(KeycloakOpenID):
+	def __init__(self, logger, properties, server_url, realm_name, client_id, client_secret_key=None, verify=True, custom_headers=None, proxies=None, cert=None):
+		self.logger = logger
+		self.properties = properties
+		logger.debug("KeycloakOpenID version: " + version("sherpa-py-keycloak"))
+		self.logger.debug("Initializing with server_url: {}, realm_name: {}, client_id: {}, verify={}, custom_headers={}, proxies={}, cert={}", server_url, realm_name, client_id, verify, custom_headers, proxies, cert)
+		KeycloakOpenID.__init__(self, server_url=server_url, realm_name=realm_name, client_id=client_id, client_secret_key=client_secret_key, verify=verify, custom_headers=custom_headers, proxies=proxies, cert=cert)
 
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
