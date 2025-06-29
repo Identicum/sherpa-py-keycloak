@@ -248,11 +248,16 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		return None
 
 
-	def sherpa_get_organization_id(self, organization_name):
-		query = {"name": organization_name}
+	def sherpa_get_organization_id(self, organization_name=None, organization_alias=None):
+		if organization_name is not None:
+			query = {"name": organization_name}
+		elif organization_alias is not None:
+			query = {"alias": organization_alias}
+		else:
+			return None
 		organizations = self.get_organizations(query=query)
 		for organization in organizations:
-			if organization["name"] == organization_name:
+			if organization["name"] == organization_name or organization["alias"] == organization_alias:
 				return organization["id"]
 		return None
 
@@ -639,10 +644,16 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 					self.logger.trace("Organization definition: {}", json_data)
 					self.create_organization(json_data)
 
-	def sherpa_add_user_to_organization(self, username, organization_name):
+	def sherpa_add_user_to_organization(self, username, organization_name=None, organization_alias=None):
 		user_id = self.get_user_id(username)
 		self.logger.trace("user_id: {}", user_id)
-		organization_id = self.sherpa_get_organization_id(organization_name)
+		if organization_name is not None:
+			organization_id = self.sherpa_get_organization_id(organization_name=organization_name)
+		elif organization_alias is not None:
+			organization_id = self.sherpa_get_organization_id(organization_alias=organization_alias)
+		else:
+			self.logger.error("No organization specified. Received parameters: organization_name: {}, organization_alias: {}", organization_name, organization_alias)
+			return None
 		self.logger.trace("organization_id: {}", organization_id)
 		return self.organization_user_add(user_id=user_id, organization_id=organization_id)
 
