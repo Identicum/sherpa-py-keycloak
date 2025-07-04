@@ -22,10 +22,10 @@ def run(logger, properties):
 	logger.info("Connecting to custom realm: {}", custom_realm)
 	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=properties.get("keycloak_base_url"), username=properties.get("keycloak_user"), password=properties.get("keycloak_password"), user_realm_name="master", realm_name=custom_realm)
 
-	custom_admin.sherpa_add_user_to_organization(username="user1", organization_name="sherpa")
-	custom_admin.sherpa_add_user_to_organization(username="user2", organization_name="sherpa")
-	custom_admin.sherpa_add_user_to_organization(username="user3", organization_alias="Identicum")
-	custom_admin.sherpa_add_user_to_organization(username="user4", organization_alias="Identicum")
+	custom_admin.sherpa_add_user_to_organization(username="user1", organization_alias="sherpa")
+	custom_admin.sherpa_add_user_to_organization(username="user2", organization_alias="sherpa")
+	custom_admin.sherpa_add_user_to_organization(username="user3", organization_alias="identicum")
+	custom_admin.sherpa_add_user_to_organization(username="user4", organization_alias="identicum")
 
 
 if __name__ == "__main__":

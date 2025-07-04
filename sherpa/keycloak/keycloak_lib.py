@@ -114,7 +114,6 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		:returns: Keycloak server response
 		:rtype: bytes
 		"""
-
 		self.logger.trace("Deleting session: {}", session_id)
 		params_path = {"realm-name": self.connection.realm_name, "id": session_id}
 		data_raw = self.connection.raw_delete(URL_ADMIN_SESSION.format(**params_path)+"?isOffline="+str(isOffline).lower())
@@ -208,7 +207,6 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		:returns: Keycloak server response
 		:rtype: bytes
 		"""
-
 		client_sessions = self.get_client_all_sessions(client_id)
 		self.logger.debug("client_sessions: {}", client_sessions)
 		for client_session in client_sessions:
@@ -228,7 +226,6 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		:returns: Keycloak server response
 		:rtype: bytes
 		"""
-
 		client_offline_sessions = self.get_client_offlinesessions(client_id)
 		self.logger.debug("client_offline_sessions: {}", client_offline_sessions)
 		for client_offline_session in client_offline_sessions:
@@ -654,15 +651,15 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 					self.logger.trace("Organization definition: {}", json_data)
 					self.create_organization(json_data)
 
-	def sherpa_add_user_to_organization(self, username, organization_name=None, organization_alias=None):
+	def sherpa_add_user_to_organization(self, username, organization_alias=None, organization_name=None):
 		user_id = self.get_user_id(username)
 		self.logger.trace("user_id: {}", user_id)
-		if organization_name is not None:
-			organization_id = self.sherpa_get_organization_id(organization_name=organization_name)
-		elif organization_alias is not None:
+		if organization_alias is not None:
 			organization_id = self.sherpa_get_organization_id(organization_alias=organization_alias)
+		elif organization_name is not None:
+			organization_id = self.sherpa_get_organization_id(organization_name=organization_name)
 		else:
-			self.logger.error("No organization specified. Received parameters: organization_name: {}, organization_alias: {}", organization_name, organization_alias)
+			self.logger.error("No organization specified. Received parameters: organization_alias: {}, organization_name: {}", organization_alias, organization_name)
 			return None
 		self.logger.trace("organization_id: {}", organization_id)
 		return self.organization_user_add(user_id=user_id, organization_id=organization_id)

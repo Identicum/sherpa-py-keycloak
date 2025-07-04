@@ -2,6 +2,11 @@
 	"id": "testrealm",
 	"realm": "testrealm",
 	"enabled": true,
-	"organizationsEnabled": true
-
+	"organizationsEnabled": true,
+	"smtpServer": {
+		"host": "mailcatcher",
+		"port": "1025",
+		"from": "no-reply@idsherpa.com",
+		"fromDisplayName": "Sherpa IDP"
+	}
 }
