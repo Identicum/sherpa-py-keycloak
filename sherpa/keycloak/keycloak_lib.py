@@ -703,7 +703,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			"enabled": True,
 			"attributes": { 
 				"taxId": [tax_id],
-				"owner": [owner_username]
+				"owner": [owner_username],
+				"customer_id": [alias]
 			},
 			"domains": [domain]
 		})
