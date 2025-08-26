@@ -663,7 +663,73 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			return None
 		self.logger.trace("organization_id: {}", organization_id)
 		return self.organization_user_add(user_id=user_id, organization_id=organization_id)
-
+	
+	def sherpa_get_organizations_by_owner(self, user_id):
+		if user_id is None:
+			self.logger.error("No User ID specified. Received parameters: user_id: {}", user_id)
+			return None
+		
+		user = self.get_user(user_id)
+		if not user:
+			self.logger.error("No User found for ID {}", user_id)
+			return None
+		
+		user_orgs = self.get_organizations({ 
+			"attributes": {
+				"owner": user["username"]
+			}
+		})
+		if not user_orgs:
+			self.logger.debug("No Organizations found for User {}", user_id)
+			return None
+		else:
+			self.logger.debug("Returning organizations list for {}", user_id)
+			return user_orgs
+		
+	def sherpa_create_organization(self, owner_username, alias, tax_id, domain):
+		if owner_username is None:
+			self.logger.error("No Owner Username specified. Received parameters: owner_username: {}, alias: {}, tax_id: {}, domain: {}", owner_username, alias, tax_id, domain)
+			return None
+		if alias is None:
+			self.logger.error("No Alias specified. Received parameters: owner_username: {}, alias: {}, tax_id: {}, domain: {}", owner_username, alias, tax_id, domain)
+			return None
+		if tax_id is None:
+			self.logger.error("No Tax ID specified. Received parameters: owner_username: {}, alias: {}, tax_id: {}, domain: {}", owner_username, alias, tax_id, domain)
+			return None
+		self.logger.trace("owner_username: {}, alias: {}, tax_id: {}, domain: {}", owner_username, alias, tax_id, domain)
+		return self.create_organization({
+			"name": alias,
+			"alias": alias,
+			"enabled": True,
+			"attributes": { 
+				"taxId": [tax_id],
+				"owner": [owner_username]
+			},
+			"domains": [domain]
+		})
+	
+	def sherpa_update_organization(self, owner_username, organization_id, alias, tax_id, domain):
+		if organization_id is None:
+			self.logger.error("No Organization ID specified. Received parameters: organization_id: {}, alias: {}, tax_id: {}, domain: {}", organization_id, alias, tax_id, domain)
+			return None
+		if alias is None:
+			self.logger.error("No Alias specified. Received parameters: organization_id: {}, alias: {}, tax_id: {}, domain: {}", organization_id, alias, tax_id, domain)
+			return None
+		if tax_id is None:
+			self.logger.error("No Tax ID specified. Received parameters: organization_id: {}, alias: {}, tax_id: {}, domain: {}", organization_id, alias, tax_id, domain)
+			return None
+		self.logger.trace("organization_id: {}, alias: {}, tax_id: {}, domain: {}", organization_id, alias, tax_id, domain)
+		return self.update_organization(organization_id, {
+			"name": alias,
+			"alias": alias,
+			"enabled": True,
+			"attributes": { 
+				"taxId": [tax_id],
+				"owner": [owner_username]
+			},
+			"domains": [domain]
+		})
+		
 
 	# def sherpa_assign_roles_to_client(self, client, role_names):
 	# 	client_id = self.get_client_id(client)
