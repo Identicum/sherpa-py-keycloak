@@ -24,6 +24,7 @@ def run(logger, properties):
 
 	custom_admin.sherpa_add_user_to_organization(username="user1", organization_alias="sherpa")
 	custom_admin.sherpa_add_user_to_organization(username="user2", organization_alias="sherpa")
+	custom_admin.sherpa_add_user_to_organization(username="user2", organization_alias="sherpa")
 	custom_admin.sherpa_add_user_to_organization(username="user3", organization_alias="identicum")
 	custom_admin.sherpa_add_user_to_organization(username="user4", organization_alias="identicum")
 

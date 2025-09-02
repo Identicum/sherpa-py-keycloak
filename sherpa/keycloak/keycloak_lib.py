@@ -662,6 +662,11 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			self.logger.error("No organization specified. Received parameters: organization_alias: {}, organization_name: {}", organization_alias, organization_name)
 			return None
 		self.logger.trace("organization_id: {}", organization_id)
+		members = self.get_organization_members(organization_id)
+		for member in members:
+			if member["id"] == user_id:
+				self.logger.debug("User {}'s already a member of the organization {}", username, organization_alias or organization_name)
+				return None
 		return self.organization_user_add(user_id=user_id, organization_id=organization_id)
 
 
