@@ -8,7 +8,7 @@ from setuptools import setup
 
 setup(
     name='sherpa-py-keycloak',
-    version='1.1.0',
+    version='1.1.1',
     description='Python utilities for Keycloak',
     url='git@github.com:Identicum/sherpa-py-keycloak.git',
     author='Identicum',
