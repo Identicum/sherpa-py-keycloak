@@ -219,6 +219,16 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# Sherpa methods
 
 	def sherpa_get_organization_id(self, organization_name=None, organization_alias=None):
+		""" Get an organization's internal keycloak id by name or alias.
+
+		:param organization_name: Organization name
+		:type organization_name: str
+		:param organization_alias: Organization alias
+		:type organization_alias: str
+
+		:returns: Organization's keycloak id, or None if not found
+		:rtype: str
+		"""
 		if organization_name is not None:
 			query = {"name": organization_name}
 		elif organization_alias is not None:
@@ -264,6 +274,14 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_get_authentication_flow(self, flow_alias):
+		""" Get an authentication flow by alias.
+
+		:param flow_alias: Authentication flow alias
+		:type flow_alias: str
+
+		:returns: Authentication flow, or None if not found
+		:rtype: dict
+		"""
 		authentication_flows = self.get_authentication_flows()
 		for authentication_flow in authentication_flows:
 			self.logger.trace("sherpa_get_authentication_flow(). Searching: {}, current: {}", flow_alias, authentication_flow["alias"])
@@ -296,6 +314,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_create_realm(self, realm_json_file, temp_file):
+		""" Create a realm from a RealmRepresentation JSON file, after replacing property placeholders.
+
+		:param realm_json_file: Path to the RealmRepresentation JSON file
+		:type realm_json_file: str
+		:param temp_file: Path used to write the file with placeholders replaced
+		:type temp_file: str
+		"""
 		shutil.copyfile(realm_json_file, temp_file)
 		self.properties.replace(temp_file)
 		with open(temp_file) as json_file:
@@ -570,6 +595,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_import_clients(self, objects_folder, temp_file):
+		""" Import (create or update) clients from ClientRepresentation JSON files, after replacing property placeholders.
+
+		:param objects_folder: Path to the folder containing one JSON file per client
+		:type objects_folder: str
+		:param temp_file: Path used to write each file with placeholders replaced
+		:type temp_file: str
+		"""
 		self.logger.debug("Importing clients from: {}", objects_folder)
 		for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
 			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
@@ -590,6 +622,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_import_users(self, objects_folder, temp_file):
+		""" Import (create if missing) users from UserRepresentation JSON files, after replacing property placeholders.
+
+		:param objects_folder: Path to the folder containing one JSON file per user
+		:type objects_folder: str
+		:param temp_file: Path used to write each file with placeholders replaced
+		:type temp_file: str
+		"""
 		self.logger.debug("Importing users from: {}", objects_folder)
 		for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
 			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
@@ -603,6 +642,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_import_organizations(self, objects_folder, temp_file):
+		""" Import (create or update) organizations from OrganizationRepresentation JSON files, after replacing property placeholders.
+
+		:param objects_folder: Path to the folder containing one JSON file per organization
+		:type objects_folder: str
+		:param temp_file: Path used to write each file with placeholders replaced
+		:type temp_file: str
+		"""
 		self.logger.debug("Importing organizations from: {}", objects_folder)
 		for directory_entry in sorted(os.scandir(objects_folder), key=lambda path: path.name):
 			if directory_entry.is_file() and directory_entry.path.endswith(".json"):
@@ -621,6 +667,18 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 						self.create_organization(json_data)
 
 	def sherpa_add_user_to_organization(self, username, organization_alias=None, organization_name=None):
+		""" Add a user to an organization, if not already a member.
+
+		:param username: username
+		:type username: str
+		:param organization_alias: Organization alias
+		:type organization_alias: str
+		:param organization_name: Organization name
+		:type organization_name: str
+
+		:returns: Keycloak server response, or None if the organization was missing or the user was already a member
+		:rtype: bytes
+		"""
 		user_id = self.get_user_id(username)
 		self.logger.trace("user_id: {}", user_id)
 		if organization_alias is not None:
@@ -652,6 +710,13 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 
 	def sherpa_assign_realm_role_to_client(self, client, role_name):
+		""" Assign a realm role to a client's service account.
+
+		:param client: client_id
+		:type client: str
+		:param role_name: Realm role name
+		:type role_name: str
+		"""
 		client_id = self.get_client_id(client)
 		self.logger.debug("client_id: {}", client_id)
 		user_id = self.get_client_service_account_user(client_id)["id"]
@@ -670,8 +735,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		:type username: str
 		:param email: email
 		:type email: str
-		:param client_id: Client's keycloak id
-		:type client_id: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
 		:param client_id: client_id
 		:type client_id: str
 
@@ -709,8 +774,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		:type username: str
 		:param email: email
 		:type email: str
-		:param client_id: Client's keycloak id
-		:type client_id: str
+		:param client_keycloak_id: Client's keycloak id
+		:type client_keycloak_id: str
 		:param client_id: client_id
 		:type client_id: str
 
