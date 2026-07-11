@@ -20,6 +20,7 @@ from keycloak.exceptions import (
      raise_error_from_response
 )
 from sherpa.utils import validators
+from sherpa.utils.basics import generate_random_password
 
 
 URL_ADMIN_REALM_LOGOUT_ALL = URL_ADMIN_REALM + "/logout-all"
@@ -814,3 +815,71 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 		else:
 			self.logger.debug("Getting user offline sessions for client: {}", client_keycloak_id)
 			return self.get_user_client_offlinesessions(user_id=user_id, client_id=client_keycloak_id)
+
+
+	def sherpa_reset_user_password(self, username=None, user_email=None):
+		""" Logout all of a user's sessions and reset their password to a randomly generated one.
+
+		Exactly one of username or user_email must be provided.
+
+		:param username: username
+		:type username: str
+		:param user_email: User's email address
+		:type user_email: str
+
+		:returns: CSV-formatted result row: "<identifier>","<status or user_id>","<created_timestamp>","<session_count>","<last_login_time>"
+		:rtype: str
+		"""
+		if (username is None) == (user_email is None):
+			self.logger.error("Exactly one of username or user_email must be provided. Received parameters: username: {}, user_email: {}", username, user_email)
+			return None
+
+		if user_email is not None:
+			if "@" not in user_email:
+				self.logger.debug("INVALID_EMAIL: {}.", user_email)
+				return '"{}","INVALID_EMAIL","",""\n'.format(user_email)
+			identifier = user_email
+			query = {"email": user_email, "max": 1, "exact": True}
+			not_found_status = "EMAIL_NOT_FOUND"
+		else:
+			identifier = username
+			query = {"username": username, "max": 1, "exact": True}
+			not_found_status = "USERNAME_NOT_FOUND"
+
+		keycloak_users = self.get_users(query=query)
+		if len(keycloak_users) != 1:
+			self.logger.debug("{}: {}.", not_found_status, identifier)
+			return '"{}","{}","",""\n'.format(identifier, not_found_status)
+
+		# User exists, proceeding to password reset
+		keycloak_user = keycloak_users[0]
+		random_password = generate_random_password()
+		keycloak_user_id = keycloak_user["id"]
+		keycloak_user_createdtimestamp = keycloak_user["createdTimestamp"]
+		try:
+			# If user has lastLogintime, assign it's value
+			keycloak_user_lastlogintime = keycloak_user["attributes"]["lastLoginTime"][0]
+		except KeyError:
+			# If not, assign "None"
+			keycloak_user_lastlogintime = None
+
+		# Saving the user's amount of active sessions, prior to reset
+		sessions_amt = len(self.get_sessions(keycloak_user_id))
+
+		# Building result string to be returned
+		result = '"{}","{}","{}","{}","{}"\n'.format(
+			identifier,
+			keycloak_user_id,
+			keycloak_user_createdtimestamp,
+			sessions_amt,
+			keycloak_user_lastlogintime if keycloak_user_lastlogintime else ""
+		)
+		self.logger.trace("User Representation JSON: {}", keycloak_user)
+
+		# Logging out of all sessions for this user
+		self.sherpa_logout_user_sessions(user_id=keycloak_user_id)
+
+		# Setting random password
+		self.logger.debug("Setting password \"{}\" for: {}.", random_password, identifier)
+		self.set_user_password(user_id=keycloak_user_id, password=random_password, temporary=False)
+		return result
