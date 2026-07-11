@@ -14,7 +14,7 @@ setup(
     author='Identicum',
     author_email='ggallard@identicum.com',
     license='MIT License',
-    install_requires=['sherpa-py-utils', 'python-keycloak==5.5.1'],
+    install_requires=['sherpa-py-utils', 'python-keycloak==7.1.1'],
     packages=['sherpa.keycloak'],
     zip_safe=False,
     python_requires='>=3.0'

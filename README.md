@@ -6,5 +6,5 @@
 
 ## Deploy
 ```sh
-python3 -m pip install --upgrade git+https://github.com/Identicum/sherpa-py-keycloak.git@main
+python3 -m pip install git+https://github.com/Identicum/sherpa-py-keycloak.git@main
 ```
