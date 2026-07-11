@@ -1,4 +1,4 @@
-# sherpa-py-janssen is available under the MIT License. https://github.com/Identicum/sherpa-py-keycloak/
+# sherpa-py-keycloak is available under the MIT License. https://github.com/Identicum/sherpa-py-keycloak/
 # Copyright (c) 2026, Identicum - https://identicum.com/
 #
 # Author: Gustavo J Gallardo - ggallard@identicum.com

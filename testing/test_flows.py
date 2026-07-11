@@ -18,7 +18,7 @@ def main(arguments):
 
 
 def run(logger, properties):
-	custom_realm = properties.get("keycloak_user")
+	custom_realm = properties.get("custom_realm")
 	logger.info("Connecting to custom realm: {}", custom_realm)
 	custom_admin = SherpaKeycloakAdmin(logger=logger, properties=properties, server_url=properties.get("keycloak_base_url"), username=properties.get("keycloak_user"), password=properties.get("keycloak_password"), user_realm_name="master", realm_name=custom_realm)
 

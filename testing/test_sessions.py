@@ -20,7 +20,7 @@ def main(arguments):
 
 
 def run(logger, properties):
-	custom_realm = properties.get("keycloak_user")
+	custom_realm = properties.get("custom_realm")
 	keycloak_base_url = properties.get("keycloak_base_url")
 	logger.info("Connecting to custom realm: {}", custom_realm)
 	idp_url = keycloak_base_url + "realms/" + custom_realm
