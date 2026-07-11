@@ -22,7 +22,6 @@ from sherpa.utils import validators
 from sherpa.utils.clients import OIDCClient
 
 
-URL_ADMIN_REALM_USERPROFILE = URL_ADMIN_REALM + "/users/profile"
 URL_ADMIN_REALM_LOGOUT_ALL = URL_ADMIN_REALM + "/logout-all"
 URL_ADMIN_SESSION = "admin/realms/{realm-name}/sessions/{id}"
 URL_ADMIN_USER_CLIENT_OFFLINESESSIONS = URL_ADMIN_USER + "/offline-sessions/{client-id}"
@@ -60,49 +59,19 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 	# ######################################################
 	# Added methods
 
-	def get_realm_userprofile(self):
-		"""Get the realm's UserProfile config.
-
-		UPConfig:
-		https://www.keycloak.org/docs-api/25.0.2/rest-api/index.html#UPConfig
-
-		:return: UPConfig
-		:rtype: dict
-		"""
-		params_path = {"realm-name": self.connection.realm_name}
-		data_raw = self.connection.raw_get(URL_ADMIN_REALM_USERPROFILE.format(**params_path))
-		return raise_error_from_response(data_raw, KeycloakGetError, expected_codes=[200])
-
-
-	def update_realm_userprofile(self, payload):
-		"""Update the realm's UserProfile config.
-
-		:param payload: UPConfig
-		:type payload: dict
-
-		:return: Http response
-		:rtype: bytes
-		"""
-		params_path = {"realm-name": self.connection.realm_name, "payload": payload}
-		data_raw = self.connection.raw_put(
-			URL_ADMIN_REALM_USERPROFILE.format(**params_path), data=json.dumps(payload)
-		)
-		return raise_error_from_response(data_raw, KeycloakPutError, expected_codes=[200])
-
-
 	def update_realm_unmanagedAttributes(self, unmanaged_attributes_policy):
 		"""Set the unmanaged attributes policy for a realm.
 
 		:param unmanaged_attributes_policy: Unmanaged attributes policy
 		:type unmanaged_attributes_policy: str
 		"""
-		userprofile = self.get_realm_userprofile()
+		userprofile = self.get_realm_users_profile()
 		if unmanaged_attributes_policy == "DISABLED":
 			# delete node
 			userprofile.pop("unmanagedAttributePolicy", None)
 		else:
 			userprofile["unmanagedAttributePolicy"] = unmanaged_attributes_policy
-		self.update_realm_userprofile(userprofile)
+		self.update_realm_users_profile(userprofile)
 
 
 	def delete_session(self, session_id, isOffline=False):
@@ -236,24 +205,6 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 	# ######################################################
 	# Sherpa methods
-
-	def sherpa_client_exists(self, client_id):
-		clients = self.get_clients()
-		for client in clients:
-			# self.logger.trace("client: {}", client)
-			# self.logger.trace("client_id: {}", client["clientId"])
-			if client["clientId"] == client_id:
-				return True
-		return False
-
-
-	def sherpa_get_client_keycloakid(self, client_id):
-		clients = self.get_clients()
-		for client in clients:
-			if client_id == client.get('clientId'):
-				return client["id"]
-		return None
-
 
 	def sherpa_get_organization_id(self, organization_name=None, organization_alias=None):
 		if organization_name is not None:
@@ -617,8 +568,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 					json_data = json.load(json_file)
 					self.logger.trace("Client definition: {}", json_data)
 					client_id = json_data["clientId"]
-					if self.sherpa_client_exists(client_id):
-						client_keycloak_id = self.sherpa_get_client_keycloakid(client_id)
+					client_keycloak_id = self.get_client_id(client_id)
+					if client_keycloak_id is not None:
 						self.logger.debug("Client '{}' already exists with internal id: {}. Updating...", client_id, client_keycloak_id)
 						self.update_client(client_keycloak_id, json_data)
 					else:
@@ -720,7 +671,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 		if client_keycloak_id is None:
 			if client_id is not None:
-				client_keycloak_id = self.sherpa_get_client_keycloakid(client_id=client_id)
+				client_keycloak_id = self.get_client_id(client_id=client_id)
 
 		if client_keycloak_id is None:
 			self.logger.debug("No Client specified, logout ALL user (online) sessions.")
@@ -758,7 +709,7 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 
 		if client_keycloak_id is None:
 			if client_id is not None:
-				client_keycloak_id = self.sherpa_get_client_keycloakid(client_id=client_id)
+				client_keycloak_id = self.get_client_id(client_id=client_id)
 
 		if client_keycloak_id is None:
 			self.logger.error("No Client found. Received parameters: client_id: {}, keycloak_client_id: {}.", client_id, client_keycloak_id)
