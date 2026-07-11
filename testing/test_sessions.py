@@ -95,7 +95,7 @@ def run(logger, properties):
 	client_keycloak_id = custom_admin.get_client_id(client_id)
 	client_offline_sessions = custom_admin.get_client_offlinesessions(client_id=client_keycloak_id)
 	for client_offline_session in client_offline_sessions:
-		logger.info("Delete session feedback: {}", custom_admin.delete_session(client_offline_session['id'], isOffline=True))
+		logger.info("Delete session feedback: {}", custom_admin.delete_session(client_offline_session['id'], is_offline=True))
 
 	logger.info("logout_all_users(): {}", custom_admin.logout_all_users())
 
