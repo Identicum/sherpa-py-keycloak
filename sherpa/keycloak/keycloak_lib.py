@@ -762,7 +762,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			if username is not None:
 				user_id = self.get_user_id(username=username)
 			elif email is not None:
-				user_id = self.get_user_id(email=email)
+				users = self.get_users(query={"email": email, "max": 1, "exact": True})
+				user_id = users[0]["id"] if users else None
 		if user_id is None:
 			self.logger.warn("No user found. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
 			return None
@@ -801,7 +802,8 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			if username is not None:
 				user_id = self.get_user_id(username=username)
 			elif email is not None:
-				user_id = self.get_user_id(email=email)
+				users = self.get_users(query={"email": email, "max": 1, "exact": True})
+				user_id = users[0]["id"] if users else None
 		if user_id is None:
 			self.logger.error("No user found. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
 			return None
