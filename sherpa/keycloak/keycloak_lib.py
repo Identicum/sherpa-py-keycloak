@@ -37,8 +37,9 @@ class SherpaKeycloakOpenID(KeycloakOpenID):
 		self.logger = logger
 		self.properties = properties
 		logger.debug("KeycloakOpenID version: " + version("sherpa-py-keycloak"))
-		self.logger.debug("Initializing with server_url: {}, realm_name: {}, client_id: {}, verify={}, custom_headers={}, proxies={}, cert={}", server_url, realm_name, client_id, verify, custom_headers, proxies, cert)
-		KeycloakOpenID.__init__(self, server_url=server_url, realm_name=realm_name, client_id=client_id, client_secret_key=client_secret_key, verify=verify, custom_headers=custom_headers, proxies=proxies, cert=cert)
+		keycloak_base_url = server_url.rstrip('/') + '/'
+		self.logger.debug("Initializing with server_url: {}, realm_name: {}, client_id: {}, verify={}, custom_headers={}, proxies={}, cert={}", keycloak_base_url, realm_name, client_id, verify, custom_headers, proxies, cert)
+		KeycloakOpenID.__init__(self, server_url=keycloak_base_url, realm_name=realm_name, client_id=client_id, client_secret_key=client_secret_key, verify=verify, custom_headers=custom_headers, proxies=proxies, cert=cert)
 
 
 class SherpaKeycloakAdmin(KeycloakAdmin):
@@ -54,8 +55,9 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			logger.trace("Authenticating using client_credentials")
 			if client_id is None or client_id == "" or client_secret_key is None or client_secret_key == "":
 				validators.raise_and_log(logger, Exception, "Missing client_id or client_secret: {}", user_realm_name)
-		self.logger.debug("Initializing with server_url: {}, username: {}, realm_name: {}, client_id: {}, user_realm_name: {}", server_url, username, realm_name, client_id, user_realm_name)
-		KeycloakAdmin.__init__(self, server_url=server_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
+		keycloak_base_url = server_url.rstrip('/') + '/'
+		self.logger.debug("Initializing with server_url: {}, username: {}, realm_name: {}, client_id: {}, user_realm_name: {}", keycloak_base_url, username, realm_name, client_id, user_realm_name)
+		KeycloakAdmin.__init__(self, server_url=keycloak_base_url, username=username, password=password, realm_name=realm_name, client_id=client_id, verify=verify, client_secret_key=client_secret_key, custom_headers=custom_headers, user_realm_name=user_realm_name)
 
 	# ######################################################
 	# Added methods
