@@ -231,6 +231,38 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 				self.delete_session(client_offline_session["id"], is_offline=True)
 
 
+	def get_client_effective_flow(self, client_id, flow_type):
+		"""Get the alias of the authentication flow bound to a Client for a given binding type.
+
+		If the Client does not override the flow for that binding type, the realm's default flow is returned.
+
+		:param client_id: Client's keycloak id
+		:type client_id: str
+		:param flow_type: Binding type. One of ["browser", "direct_grant"], matching the Client's key in authenticationFlowBindingOverrides.
+		:type flow_type: str
+
+		:returns: Flow alias, or None if no flow is bound
+		:rtype: str
+		"""
+		# Map flow_type to the corresponding key in the realm's default flow fields
+		realm_default_flow_fields = {
+			"browser": "browserFlow",
+			"direct_grant": "directGrantFlow",
+		}
+		if flow_type not in realm_default_flow_fields:
+			self.logger.error("Unknown flow_type: {}. Expected one of: {}", flow_type, list(realm_default_flow_fields))
+			return None
+
+		client = self.get_client(client_id)
+		flow_id = client.get("authenticationFlowBindingOverrides", {}).get(flow_type)
+		if flow_id:
+			flow = self.get_authentication_flow_for_id(flow_id)
+			return flow["alias"]
+
+		realm = self.get_realm(self.connection.realm_name)
+		return realm.get(realm_default_flow_fields[flow_type])
+
+
 	# ######################################################
 	# Sherpa methods
 
