@@ -870,6 +870,55 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			return self.get_user_client_offlinesessions(user_id=user_id, client_id=client_keycloak_id)
 
 
+	def sherpa_user_has_federation_link(self, user_id: str):
+		""" Check if a user is linked to a User Federation provider (e.g. LDAP).
+
+		:param user_id: User id
+		:type user_id: str
+
+		:returns: True if the user is linked to a User Federation provider, False otherwise
+		:rtype: bool
+		"""
+		if user_id is None:
+			self.logger.warn("No user received.")
+			return False
+		user = self.get_user(user_id)
+		return bool(user.get("federationLink"))
+
+
+	def sherpa_unlink_federated_user(self, user_id=None, username=None, email=None):
+		""" Unlink a user from its User Federation provider (e.g. LDAP), turning it into a local user.
+		Same behavior as the "Unlink user" action in the admin console.
+
+		:param user_id: User id
+		:type user_id: str
+		:param username: username
+		:type username: str
+		:param email: email
+		:type email: str
+
+		:returns: Keycloak server response, or None if the user was not found or is not federated
+		:rtype: bytes
+		"""
+		if user_id is None:
+			if username is not None:
+				user_id = self.get_user_id(username=username)
+			elif email is not None:
+				users = self.get_users(query={"email": email, "max": 1, "exact": True})
+				user_id = users[0]["id"] if users else None
+		if user_id is None:
+			self.logger.warn("No user found. Received parameters: user_id: {}, username: {}, email: {}", user_id, username, email)
+			return None
+
+		user = self.get_user(user_id)
+		if not self.sherpa_user_has_federation_link(user_id=user_id):
+			self.logger.info("User {} is not linked to a User Federation provider.", user_id)
+			return None
+		self.logger.debug("Unlinking user {} from User Federation provider: {}", user_id, user["federationLink"])
+		user["federationLink"] = ""
+		return self.update_user(user_id=user_id, payload=user)
+
+
 	def sherpa_reset_user_password(self, username=None, user_email=None):
 		""" Logout all of a user's sessions and reset their password to a randomly generated one.
 
