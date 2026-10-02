@@ -714,6 +714,25 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 						self.logger.debug("Organization '{}' does not exist. Creating...", json_data.get("name"))
 						self.create_organization(json_data)
 
+
+	def sherpa_user_is_org_member(self, user_id, organization_id):
+		""" Check if a user is a member of an organization.
+
+		:param user_id: User id
+		:type user_id: str
+		:param organization_id: Organization id
+		:type organization_id: str
+
+		:returns: True if the user is a member of the organization, False otherwise
+		:rtype: bool
+		"""
+		members = self.get_organization_members(organization_id)
+		for member in members:
+			if member["id"] == user_id:
+				return True
+		return False
+
+
 	def sherpa_add_user_to_organization(self, username, organization_alias=None, organization_name=None):
 		""" Add a user to an organization, if not already a member.
 
@@ -737,11 +756,9 @@ class SherpaKeycloakAdmin(KeycloakAdmin):
 			self.logger.error("No organization specified. Received parameters: organization_alias: {}, organization_name: {}", organization_alias, organization_name)
 			return None
 		self.logger.trace("organization_id: {}", organization_id)
-		members = self.get_organization_members(organization_id)
-		for member in members:
-			if member["id"] == user_id:
-				self.logger.debug("User {}'s already a member of the organization {}", username, organization_alias or organization_name)
-				return None
+		if self.sherpa_user_is_org_member(user_id, organization_id):
+			self.logger.debug("User {}'s already a member of the organization {}", username, organization_alias or organization_name)
+			return None
 		return self.organization_user_add(user_id=user_id, organization_id=organization_id)
 
 
